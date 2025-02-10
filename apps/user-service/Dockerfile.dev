@@ -1,0 +1,30 @@
+ARG PORT
+FROM eclipse-temurin:17-jdk-alpine as development
+
+WORKDIR /app
+
+RUN apk add --no-cache bash
+
+# Copy the Parent POM (not the whole monorepo)
+COPY pom.xml /app/pom.xml
+COPY mvnw /app/mvnw
+COPY .mvn /app/.mvn
+
+COPY apps/user-service /app/user-service/
+
+# Ensure Maven Wrapper is executable
+RUN chmod +x /app/user-service/mvnw
+
+# Install the parent POM first (so user-service can find it)
+WORKDIR /app
+RUN /app/user-service/mvnw install -N -f /app/pom.xml
+
+# Move to user-service directory
+WORKDIR /app/user-service
+
+# Install dependencies (ensuring it now finds the parent POM)
+RUN ./mvnw dependency:go-offline
+
+# Run Spring Boot with live reload
+CMD ["./mvnw", "spring-boot:run"]
+EXPOSE $PORT
