@@ -42,8 +42,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/database
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true
+      - SPRING_PROFILES_ACTIVE=dev
     ports:
       - "8080:8080"
+      - "35729:35729"
     volumes:
       - type: bind
         source: ./apps/user-service/src
@@ -51,7 +60,11 @@ services:
       - type: bind
         source: ./apps/user-service/pom.xml
         target: /app/user-service/pom.xml
-        
+      - type: bind
+        source: ./apps/user-service/target
+        target: /app/user-service/target
+      - ~/.m2:/root/.m2
+
 volumes:
   postgres_data:
 

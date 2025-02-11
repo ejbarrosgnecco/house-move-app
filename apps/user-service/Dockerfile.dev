@@ -25,6 +25,6 @@ WORKDIR /app/user-service
 # Install dependencies (ensuring it now finds the parent POM)
 RUN ./mvnw dependency:go-offline
 
-# Run Spring Boot with live reload
-CMD ["./mvnw", "spring-boot:run"]
+# Run Spring Boot with class reloading enabled
+CMD ["./mvnw", "compile", "spring-boot:run"]
 EXPOSE $PORT
